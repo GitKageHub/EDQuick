@@ -5,10 +5,6 @@ param (
     [Parameter(Mandatory = $false)]
     [switch]$Config,
     [Parameter(Mandatory = $false)]
-    [switch]$ConfigMode,
-    [Parameter(Mandatory = $false)]
-    [switch]$Configuration,
-    [Parameter(Mandatory = $false)]
     [switch]$EliteDangerous,
     [Parameter(Mandatory = $false)]
     [switch]$EDDiscovery,
@@ -29,14 +25,12 @@ param (
     [Parameter(Mandatory = $false)]
     [switch]$Install,
     [Parameter(Mandatory = $false)]
-    [switch]$InstallerMode,
-    [Parameter(Mandatory = $false)]
-    [switch]$UninstallerMode,
+    [switch]$Uninstall,
     [Parameter(Mandatory = $false)]
     [switch]$VoiceAttack = $false
 )
 
-if ($Autoconfig -or $Config -or $ConfigMode -or $Configuration) {
+if ($Config) {
     $ConfigModeTriggered = $true
 } else {
     $ConfigModeTriggered = $false
@@ -47,10 +41,15 @@ if ($help) {
     Exit 0
 }
 
-if ($Install -or $InstallerMode -or $Uninstall -or $Uninstaller -or $UnInstallerMode) {
+if ($Install -or $Uninstall) {
     $InstallerModeTriggered = $true
 } else {
     $InstallerModeTriggered = $false
+}
+
+if ($ConfigModeTriggered -eq $true -and $InstallerModeTriggered -eq $true) {
+    Write-Host 'You cannot use both config and install/uninstall switches at the same time.' -ForegroundColor Red
+    Exit 1
 }
 
 ### Functions ###
