@@ -226,7 +226,112 @@ $EDQConfig = Import-Clixml -Path $EDQConfigPath
 
 # Installer/update software
 if ($InstallerMode -eq $true) {
-    #TODO
+    # Loop to render a numbered table
+    do {
+        # Get the configuration app list with Name, IsInstalled, Source, and Type properties
+        $configApps = Get-ConfigApps
+
+        # Filter out apps with $null Source
+        $configApps = $configApps | Where-Object { $_.Source -ne $null }
+
+        # Render the table with Name and IsInstalled columns
+        $configApps | Select-Object @{Name = 'Number'; Expression = { $i } }, Name, IsInstalled | Format-Table -AutoSize
+
+        # Prompt the user to select an app
+        $selected = Read-Host 'Enter the number of the app to install/uninstall or press Enter to exit'
+
+        # Exit the loop if user presses Enter or Esc
+        if ($selected -eq '' -or $selected -eq [char]27) {
+            break
+        }
+
+        # Get the selected app by number
+        $selectedApp = $configApps[$selected - 1]
+
+        # Set the status of the selected app to "In Progress"
+        $selectedApp.IsInstalled = 'In Progress'
+        Write-Host "Selected app: $($selectedApp.Name). $($selectedApp.Type) installation status: $($selectedApp.IsInstalled)"
+
+        # Define the installation job name based on the app value
+        $jobName = "Install-$($selectedApp.Type)"
+
+        # Define the installation file path and parameters based on the app value
+        $filePath = "C:\Windows\Temp\$($selectedApp.Type)"
+        $parameters = ''
+        switch ($selectedApp.Type) {
+            'eddiscovery' {
+                $parameters = '/SILENT'
+            }
+            'EDEngineer' {
+                $parameters = '/VERYSILENT'
+            }
+            'EDHM_UI' {
+                $parameters = '/quiet'
+            }
+            'EDMarketConnector' {
+                $parameters = '/quiet'
+            }
+            'EliteDangerous' {
+                # Do nothing, skip installation
+            }
+            'EliteObservatory' {
+                $parameters = '/VERYSILENT'
+            }
+            'EliteOdysseyMaterialsHelper' {
+                $parameters = '/quiet'
+            }
+            'EliteTrack' {
+                # Just execute the exe and wait for user to finish
+                Start-Process $selectedApp.Source -Wait
+            }
+            'VoiceAttack' {
+                # Just send user to the website in Source with default browser
+                Start-Process $selectedApp.Source
+            }
+        }
+
+        # If the selected app is not EliteDangerous, download and install the file
+        if ($selectedApp.Type -ne 'EliteDangerous' -and $selectedApp.Type -ne 'EliteTrack' -and $selectedApp.Type -ne 'VoiceAttack') {
+            # Download the installation file from the Source
+            Write-Host "Downloading $($selectedApp.Type) installation file from $($selectedApp.Source)..."
+            $response = Invoke-WebRequest $selectedApp.Source
+            $contentDisposition = $response.Headers['Content-Disposition']
+            if ($contentDisposition -match "filename=`"(.*?)`"") {
+                $fileName = $matches[1]
+                $filePath = "C:\Windows\Temp\$fileName"
+            }
+            $response.Content | Set-Content $filePath
+
+            # Install the file with the specified parameters
+            Write-Host "Installing $($selectedApp.Type)..."
+            Start-Process $filePath $parameters -Wait
+
+            # Set the status of the selected app to "Installed"
+            $selectedApp.IsInstalled = 'Installed'
+            Write-Host "$($selectedApp.Type) installation complete."
+        }
+
+    } while ($true)
+
+    # If the selected app is EliteTrack, VoiceAttack, or is being uninstalled, set the status to "Installed" or "Uninstalled" based on the file existence check
+    if ($selectedApp.Type -eq 'EliteTrack' -or $selectedApp.Type -eq 'VoiceAttack' -or $uninstall) {
+        $filePath = "C:\Windows\Temp\$($selectedApp.Type)"
+        $fileExists = Test-Path $filePath
+        if ($fileExists) {
+            $selectedApp.IsInstalled = $true
+            if ($uninstall) {
+                $selectedApp.IsInstalled = $false
+            }
+            Write-Host "$($selectedApp.Name) installation status: $($selectedApp.IsInstalled)"
+        } else {
+            $selectedApp.IsInstalled = $false
+            if ($uninstall) {
+                $selectedApp.IsInstalled = 'Already Uninstalled'
+            }
+            Write-Host "$($selectedApp.Name) installation status: $($selectedApp.IsInstalled)"
+        }
+    }
+    exit 0
 }
 
 # Ignition System
