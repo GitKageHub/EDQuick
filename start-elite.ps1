@@ -165,13 +165,13 @@ $EDQConfigDirectory = Split-Path $EDQConfigPath -Parent
 $ConfigExists = Test-Path -Path $EDQConfigPath -PathType Leaf -ErrorAction SilentlyContinue
 
 # Check if a DataFile exists
-if (-not $ConfigExists) {
+if ($ConfigExists) {
+    $EDQConfig = Import-Clixml -Path $EDQConfigPath
+} else {
     New-Item -ItemType Directory -Force -Path $EDQConfigDirectory -ErrorAction SilentlyContinue | Out-Null
     New-Item -Path $EDQConfigPath -ItemType File -Force -ErrorAction SilentlyContinue | Out-Null
     $EDQConfig = DefaultConfig
     $EDQConfig | Export-Clixml -Path $EDQConfigPath
-} else {
-    $EDQConfig = Import-Clixml -Path $EDQConfigPath
 }
 
 # Reconfigure launchers
