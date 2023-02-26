@@ -1,71 +1,52 @@
 [CmdletBinding()]
 param (
-    # Set this to $true to enter configuration mode
+    [Parameter(Mandatory = $false)]
+    [switch]$Autoconfig,
+    [Parameter(Mandatory = $false)]
+    [switch]$Config,
     [Parameter(Mandatory = $false)]
     [switch]$ConfigMode,
-
-    # Set this to $true to run Elite Dangerous
+    [Parameter(Mandatory = $false)]
+    [switch]$Configuration,
     [Parameter(Mandatory = $false)]
     [switch]$EliteDangerous,
-
-    # Set this to $true to run EDDiscovery
     [Parameter(Mandatory = $false)]
     [switch]$EDDiscovery,
-
-    # Set this to $true to run EDEngineer
     [Parameter(Mandatory = $false)]
     [switch]$EDEngineer,
-
-    # Set this to $true to run EDHM_UI
     [Parameter(Mandatory = $false)]
     [switch]$EDHM_UI,
-
-    # Set this to $true to run EDMarketConnector
     [Parameter(Mandatory = $false)]
     [switch]$EDMarketConnector,
-    
-    # Set this to $true to run Elite Observatory
     [Parameter(Mandatory = $false)]
     [switch]$EliteObservatory,
-
-    # Set this to $true to run Elite Odyssey Materials Helper
     [Parameter(Mandatory = $false)]
     [switch]$EliteOdysseyMaterialsHelper,
-
-    # Set this to $true to run Elite Track
     [Parameter(Mandatory = $false)]
     [switch]$EliteTrack,
-
-    # Set this to $true to enter installer mode
     [Parameter(Mandatory = $false)]
     [switch]$Help,
-    
-    # Set this to $true to enter installer mode
+    [Parameter(Mandatory = $false)]
+    [switch]$Install,
     [Parameter(Mandatory = $false)]
     [switch]$InstallerMode,
-
-    # Set this to $true to enter uninstaller mode
     [Parameter(Mandatory = $false)]
     [switch]$UninstallerMode,
-
-    # Set this to $true to run VoiceAttack
     [Parameter(Mandatory = $false)]
     [switch]$VoiceAttack = $false
 )
 
-# Check for named parameters using $PSBoundParameters automatic variable to examine the bound parameters
-switch -Regex ($PSBoundParameters.Keys) {
-    { $_ -in 'autoconfig', 'config', 'configure', 'configuration' } {
+if ($Autoconfig -or $Config -or $ConfigMode -or $Configuration) {
         $ConfigMode = $true
     }
-    { $_ -in 'help', 'github' } {
+    if ($help){
         Start-Process 'https://github.com/GitKageHub/EDQuick' -ErrorAction SilentlyContinue
         Exit 0
     }
-    { $_ -in 'install', 'installer', 'add' } {
+    if ($Install -or $InstallerMode) {
         $InstallerMode = $true
     }
-    { $_ -in 'uninstall', 'uninstaller', 'remove' } {
+    if ($Uninstall -or $Uninstaller -or $UnInstallerMode) {
         $UnInstallerMode = $true
     }
     default {
