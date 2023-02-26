@@ -206,7 +206,7 @@ if ($ConfigModeTriggered -eq $true) {
     # Ask user which apps to run
     foreach ($app in $EDQConfig.GetEnumerator()) {
         if ($app.Value['IsInstalled']) {
-            $isEnabled = Read-Host "Do you want to enable $($app.Key)? (y/N)" -Default "N"
+            $isEnabled = Read-Host "Do you want to enable $($app.Key)? (y/N)" -Default 'N'
             $isEnabled = $true
             $EDQConfig[$app.Key]['IsInstalled'] = $isEnabled
         }
@@ -220,8 +220,15 @@ if ($InstallerModeTriggered -eq $true) {
     # Loop to render a numbered table
     do {
         # Filter out apps with $null Source like Steam (not handling that yet)
-        $configApps = $EDQConfig | Where-Object { $_.Source -ne $null }
+        $configApps = @{}
+        foreach ($key in $EDQConfig.Keys) {
+            if ($EDQConfig[$key].Source -ne $null) {
+                $configApps[$key] = $EDQConfig[$key]
+            }
+        }
 
+        Write-Host "Number of apps with Source property not null: $($configApps.Count)"
+        
         # Render the table with Name and IsInstalled columns
         $configApps | Select-Object @{Name = 'Number'; Expression = { $i } }, Name, IsInstalled | Format-Table -AutoSize
 
