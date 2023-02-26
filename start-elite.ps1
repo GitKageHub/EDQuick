@@ -1,5 +1,13 @@
 [CmdletBinding()]
 param (
+    # Set this to $true to enter configuration mode
+    [Parameter(Mandatory = $false)]
+    [switch]$ConfigMode,
+
+    # Set this to $true to run Elite Dangerous
+    [Parameter(Mandatory = $false)]
+    [bool]$EliteDangerous = $false,
+
     # Set this to $true to run EDDiscovery
     [Parameter(Mandatory = $false)]
     [bool]$EDDiscovery = $false,
@@ -15,11 +23,7 @@ param (
     # Set this to $true to run EDMarketConnector
     [Parameter(Mandatory = $false)]
     [bool]$EDMarketConnector = $false,
-
-    # Set this to $true to run Elite Dangerous
-    [Parameter(Mandatory = $false)]
-    [bool]$EliteDangerous = $false,
-
+    
     # Set this to $true to run Elite Observatory
     [Parameter(Mandatory = $false)]
     [bool]$EliteObservatory = $false,
@@ -32,21 +36,21 @@ param (
     [Parameter(Mandatory = $false)]
     [bool]$EliteTrack = $false,
 
+    # Set this to $true to enter installer mode
+    [Parameter(Mandatory = $false)]
+    [switch]$Help,
+    
+    # Set this to $true to enter installer mode
+    [Parameter(Mandatory = $false)]
+    [switch]$InstallerMode,
+
+    # Set this to $true to enter uninstaller mode
+    [Parameter(Mandatory = $false)]
+    [switch]$UninstallerMode,
+
     # Set this to $true to run VoiceAttack
     [Parameter(Mandatory = $false)]
-    [bool]$VoiceAttack = $false,
-
-    # Set this to $true to enter configuration mode
-    [Parameter(Mandatory = $false)]
-    [bool]$ConfigMode = $false,
-
-    # Set this to $true to enter installer mode
-    [Parameter(Mandatory = $false)]
-    [bool]$InstallerMode = $false,
-
-    # Set this to $true to enter installer mode
-    [Parameter(Mandatory = $false)]
-    [bool]$UninstallerMode = $false
+    [bool]$VoiceAttack = $false
 )
 
 # Check for named parameters using $PSBoundParameters automatic variable to examine the bound parameters
