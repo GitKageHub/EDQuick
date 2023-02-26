@@ -185,7 +185,7 @@ if ($ConfigExists) {
 }
 
 # Reconfigure launchers
-if ($ConfigModeTriggered -eq $true) {
+if ($ConfigModeTriggered -ne $false) {
     # Detect which apps are installed
     foreach ($app in $EDQConfig.GetEnumerator()) {
         $path = $app.Value['Path']
@@ -216,7 +216,7 @@ if ($ConfigModeTriggered -eq $true) {
 $EDQConfig = Import-Clixml -Path $EDQConfigPath
 
 # Installer/update software
-if ($InstallerModeTriggered -eq $true) {
+if ($InstallerModeTriggered -ne $false) {
     # Loop to render a numbered table
     do {
         # Filter out apps with $null Source like Steam (not handling that yet)
