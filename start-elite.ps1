@@ -6,35 +6,35 @@ param (
 
     # Set this to $true to run Elite Dangerous
     [Parameter(Mandatory = $false)]
-    [bool]$EliteDangerous = $false,
+    [switch]$EliteDangerous,
 
     # Set this to $true to run EDDiscovery
     [Parameter(Mandatory = $false)]
-    [bool]$EDDiscovery = $false,
+    [switch]$EDDiscovery,
 
     # Set this to $true to run EDEngineer
     [Parameter(Mandatory = $false)]
-    [bool]$EDEngineer = $false,
+    [switch]$EDEngineer,
 
     # Set this to $true to run EDHM_UI
     [Parameter(Mandatory = $false)]
-    [bool]$EDHM_UI = $false,
+    [switch]$EDHM_UI,
 
     # Set this to $true to run EDMarketConnector
     [Parameter(Mandatory = $false)]
-    [bool]$EDMarketConnector = $false,
+    [switch]$EDMarketConnector,
     
     # Set this to $true to run Elite Observatory
     [Parameter(Mandatory = $false)]
-    [bool]$EliteObservatory = $false,
+    [switch]$EliteObservatory,
 
     # Set this to $true to run Elite Odyssey Materials Helper
     [Parameter(Mandatory = $false)]
-    [bool]$EliteOdysseyMaterialsHelper = $false,
+    [switch]$EliteOdysseyMaterialsHelper,
 
     # Set this to $true to run Elite Track
     [Parameter(Mandatory = $false)]
-    [bool]$EliteTrack = $false,
+    [switch]$EliteTrack,
 
     # Set this to $true to enter installer mode
     [Parameter(Mandatory = $false)]
@@ -50,7 +50,7 @@ param (
 
     # Set this to $true to run VoiceAttack
     [Parameter(Mandatory = $false)]
-    [bool]$VoiceAttack = $false
+    [switch]$VoiceAttack = $false
 )
 
 # Check for named parameters using $PSBoundParameters automatic variable to examine the bound parameters
