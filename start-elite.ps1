@@ -226,8 +226,7 @@ $EDQConfig = Import-Clixml -Path $EDQConfigPath
 
 # Installer/update software
 if ($InstallerMode -eq $true) {
-    #TODO: Install flagged
-    # This will be an interactive mode
+    #TODO
 }
 
 # Ignition System
