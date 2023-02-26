@@ -37,23 +37,20 @@ param (
 )
 
 if ($Autoconfig -or $Config -or $ConfigMode -or $Configuration) {
-        $ConfigMode = $true
-    }
-    if ($help){
-        Start-Process 'https://github.com/GitKageHub/EDQuick' -ErrorAction SilentlyContinue
-        Exit 0
-    }
-    if ($Install -or $InstallerMode) {
-        $InstallerMode = $true
-    }
-    if ($Uninstall -or $Uninstaller -or $UnInstallerMode) {
-        $UnInstallerMode = $true
-    }
-    default {
-        Write-Error "Unrecognized parameter: $_"
-        Read-Host 'Press Enter to exit. Error status 1.'
-        Exit 1
-    }
+    $ConfigModeTriggered = $true
+} else {
+    $ConfigModeTriggered = $false
+}
+
+if ($help) {
+    Start-Process 'https://github.com/GitKageHub/EDQuick' -ErrorAction SilentlyContinue
+    Exit 0
+}
+
+if ($Install -or $InstallerMode -or $Uninstall -or $Uninstaller -or $UnInstallerMode) {
+    $InstallerModeTriggered = $true
+} else {
+    $InstallerModeTriggered = $false
 }
 
 ### Functions ###
@@ -179,7 +176,7 @@ if (-not $ConfigExists) {
 }
 
 # Reconfigure launchers
-if ($ConfigMode -eq $true) {
+if ($ConfigModeTriggered -eq $true) {
     # Detect which apps are installed
     foreach ($app in $EDQConfig.GetEnumerator()) {
         $path = $app.Value['Path']
@@ -210,7 +207,7 @@ if ($ConfigMode -eq $true) {
 $EDQConfig = Import-Clixml -Path $EDQConfigPath
 
 # Installer/update software
-if ($InstallerMode -eq $true) {
+if ($InstallerModeTriggered -eq $true) {
     # Loop to render a numbered table
     do {
         # Filter out apps with $null Source like Steam (not handling that yet)
@@ -339,7 +336,7 @@ if ($InstallerMode -eq $true) {
 }
 
 # Ignition System
-if (($ConfigMode -eq $false) -and ($InstallerMode -eq $false)) {
+if (($ConfigModeTriggered -eq $false) -and ($InstallerModeTriggered -eq $false)) {
     # Community Data
     if ($EDMarketConnector) { StartSecondScreen($EDQConfig.EDMarketConnector.Path) }
     if ($EDDiscovery) { StartSecondScreen($Path_EDDiscovery) }
