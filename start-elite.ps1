@@ -190,7 +190,7 @@ if (-not $ConfigExists) {
     $EDQConfig = DefaultConfig
     $EDQConfig | Export-Clixml -Path $EDQConfigPath
 } else {
-    $EDQConfig = Import-PowerShellDataFile -Path $EDQConfigPath
+    $EDQConfig = Import-Clixml -Path $EDQConfigPath
 }
 
 # Reconfigure launchers
@@ -222,7 +222,7 @@ if ($ConfigMode -eq $true) {
     }
     $EDQConfig | Export-Clixml -Path $EDQConfigPath
 } 
-Import-PowerShellDataFile -Path $EDQConfigPath
+$EDQConfig = Import-Clixml -Path $EDQConfigPath
 
 # Installer/update software
 if ($InstallerMode -eq $true) {
