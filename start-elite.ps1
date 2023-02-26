@@ -216,7 +216,7 @@ if ($ConfigMode -eq $true) {
     foreach ($app in $EDQConfig.GetEnumerator()) {
         if ($app.Value['IsInstalled']) {
             $isEnabled = Read-Host "Do you want to enable $($app.Key)? (Y/N)"
-            $isEnabled = $isEnabled -eq 'Y'
+            $isEnabled = $true
             $EDQConfig[$item.Key]['IsInstalled'] = $isEnabled
         }
     }
@@ -228,22 +228,14 @@ $EDQConfig = Import-Clixml -Path $EDQConfigPath
 if ($InstallerMode -eq $true) {
     # Loop to render a numbered table
     do {
-        # Get the configuration app list with Name, IsInstalled, Source, and Type properties
-        $configApps = Get-ConfigApps
-
-        # Filter out apps with $null Source
-        $configApps = $configApps | Where-Object { $_.Source -ne $null }
+        # Filter out apps with $null Source like Steam (not handling that yet)
+        $configApps = $EDQConfig | Where-Object { $_.Source -ne $null }
 
         # Render the table with Name and IsInstalled columns
         $configApps | Select-Object @{Name = 'Number'; Expression = { $i } }, Name, IsInstalled | Format-Table -AutoSize
 
         # Prompt the user to select an app
-        $selected = Read-Host 'Enter the number of the app to install/uninstall or press Enter to exit'
-
-        # Exit the loop if user presses Enter or Esc
-        if ($selected -eq '' -or $selected -eq [char]27) {
-            break
-        }
+        $selected = Read-Host 'Enter the number of the app to install/uninstall or press Enter/Esc to exit'
 
         # Get the selected app by number
         $selectedApp = $configApps[$selected - 1]
@@ -302,15 +294,42 @@ if ($InstallerMode -eq $true) {
             }
             $response.Content | Set-Content $filePath
 
-            # Install the file with the specified parameters
+            # Install the file with the specified parameters in a background job
             Write-Host "Installing $($selectedApp.Type)..."
-            Start-Process $filePath $parameters -Wait
+            Start-Job -Name $jobName -ScriptBlock { Start-Process $args[0] $args[1] -Wait } -ArgumentList $filePath, $parameters | Out-Null
 
-            # Set the status of the selected app to "Installed"
-            $selectedApp.IsInstalled = 'Installed'
-            Write-Host "$($selectedApp.Type) installation complete."
+            # Set the status of the selected app to "Installed" once the job completes
+            Register-ObjectEvent -InputObject (Get-Job -Name $jobName) -EventName StateChanged -Action {
+                if ($EventArgs.JobStateInfo.State -eq 'Completed') {
+                    $selectedApp.IsInstalled = 'Installed'
+                    Write-Host "$($selectedApp.Type) installation complete."
+                }
+            } | Out-Null
         }
 
+        # Set the status of the selected app to "Not Installed" or "Already Uninstalled" if the file doesn't exist
+        else {
+            $fileExists = Test-Path $filePath
+            $selectedApp.IsInstalled = 'Not Installed'
+            if ($uninstall) {
+                $selectedApp.IsInstalled = 'Already Uninstalled'
+            }
+            if ($fileExists) {
+                # Set the status of the selected app to "Installed" or "Uninstalled" depending on the value of the `$uninstall` variable
+                $selectedApp.IsInstalled = 'Installed'
+                if ($uninstall) {
+                    $selectedApp.IsInstalled = 'Uninstalled'
+                }
+                Write-Host "$($selectedApp.Name) installation status: $($selectedApp.IsInstalled)"
+            } else {
+                Write-Host "$($selectedApp.Name) installation status: $($selectedApp.IsInstalled)"
+            }
+        }
+
+        # Exit the loop if user presses Enter or Esc
+        if ($selected -eq '' -or $selected -eq [char]27) {
+            break
+        }
     } while ($true)
 
     # If the selected app is EliteTrack, VoiceAttack, or is being uninstalled, set the status to "Installed" or "Uninstalled" based on the file existence check
