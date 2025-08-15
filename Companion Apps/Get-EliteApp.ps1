@@ -1,4 +1,5 @@
-# This script defines a reusable function compatible with PowerShell 5.1 on Windows 10
+# This script defines a reusable function
+# compatible with PowerShell 5.1 on Windows 10
 # to download and extract a GitHub release.
 
 function Invoke-GitHubReleaseDownload {
