@@ -1,0 +1,5 @@
+# Launch all four Elite Dangerous instances simultaneously.
+Start-Process -FilePath "C:\Users\Quadstronaut\scoop\apps\sandboxie-plus-np\current\Start.exe" -ArgumentList "/box:ED_Duvrazh", "C:\Program Files (x86)\Steam\steamapps\common\Elite Dangerous\MinEdLauncher.exe"
+Start-Process -FilePath "C:\Users\Quadstronaut\scoop\apps\sandboxie-plus-np\current\Start.exe" -ArgumentList "/box:ED_Bistronaut", "C:\Program Files (x86)\Steam\steamapps\common\Elite Dangerous\MinEdLauncher.exe"
+Start-Process -FilePath "C:\Users\Quadstronaut\scoop\apps\sandboxie-plus-np\current\Start.exe" -ArgumentList "/box:ED_Tristronaut", "C:\Program Files (x86)\Steam\steamapps\common\Elite Dangerous\MinEdLauncher.exe"
+Start-Process -FilePath "C:\Users\Quadstronaut\scoop\apps\sandboxie-plus-np\current\Start.exe" -ArgumentList "/box:ED_Quadstronaut", "C:\Program Files (x86)\Steam\steamapps\common\Elite Dangerous\MinEdLauncher.exe"
