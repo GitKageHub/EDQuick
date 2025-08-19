@@ -21,7 +21,6 @@ Invoke-WebRequest -Uri $downloadUri[0] -Out $pathInstaller
 if (Test-Path -Path $pathInstaller -PathType Leaf) {
     Start-Process -FilePath $pathInstaller -ArgumentList "/VERYSILENT" -Wait -NoNewWindow -Verbose
 }
-EDMarketConnector_Installer_5.13.1.exe /VERYSILENT /D="G:\EliteApps\EDMarketConnector"
 
 # Delete installer
 Remove-Item -Path $pathInstaller -Force -ErrorAction SilentlyContinue
