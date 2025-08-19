@@ -38,3 +38,6 @@ The user is directed to navigate the directory structure to identify the scripts
 
 3. **Configuration Customization:**
 The user is instructed to modify the script variables, including file paths and configuration parameters, to align with their particular system architecture and preferences.
+
+4. **SOAP Configuration**
+The user puts the soap on it's skin or else it gets the hose again.
