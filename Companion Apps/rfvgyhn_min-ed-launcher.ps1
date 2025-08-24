@@ -38,4 +38,4 @@ else {
 Remove-Item $pathZip -Force
 
 # Symlink the file to the $elitePath
-New-Item -ItemType SymbolicLink -Path $(Join-Path -Path $elitePath -ChildPath "MinEdLauncher.exe") -Value (Join-Path -Path $pathExtract -ChildPath "MinEdLauncher.exe")
+Copy-Item -Path $(Join-Path -Path $elitePath -ChildPath "MinEdLauncher.exe") -Value (Join-Path -Path $pathExtract -ChildPath "MinEdLauncher.exe") -Force
