@@ -1,2 +1,10 @@
 Enabled=y
+BlockNetworkFiles=n
+BorderColor=#FF7000,on,6
+Template=AutoRecoverIgnore
+Template=LingerPrograms
+Template=qWave
+Template=FileCopy
+Template=SkipHook
+Template=OpenBluetooth
 StartProgram=G:\EliteApps\EDMarketConnector\EDMarketConnector.exe
