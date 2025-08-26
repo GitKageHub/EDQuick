@@ -84,8 +84,8 @@ $edeb = @(
     @{ ProcessName = "Elite Dangerous Exploration Buddy"; Name = "CMDRDuvrazh"; Maximize = $true; Moved = $false }
 )
 
-# Create a single list of all items to move
-$allWindowsToMove = $boxes + $edmcs + $edeb
+# Create a single list of all items to move for looping porpoises
+$allWindowsToMove = $edeb + $edmcs + $boxes
 
 # Check that the necessary executables exist
 $sbsTrue = Test-Path $sandboxieStart
@@ -122,9 +122,6 @@ if ($sbsTrue -and $edmlTrue) {
         Start-Sleep -Milliseconds 500
     # The loop will exit when the count of windows that haven't been moved is 0
     } until ( ($allWindowsToMove | Where-Object { $_.Moved -eq $false }).Count -eq 0 )
-
-    Write-Host "All specified windows have been moved and resized. Script finished."
-
 } else {
     Write-Error "Could not find one or more required executables. Check your paths."
 }
