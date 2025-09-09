@@ -41,3 +41,7 @@ The user is instructed to modify the script variables, including file paths and 
 
 4. **SOAP Configuration**
 The user puts the soap on it's skin or else it gets the hose again.
+
+### 🆘 Additional Assistance Scripts
+
+rackham_wine.py - A Selenium script to monitor the price of Rackham's Peak market on Inara.
