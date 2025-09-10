@@ -125,12 +125,6 @@ if ($sbsTrue -and $edmlTrue) {
         }
     } until ($windowsFoundCount -eq $allWindowsToMove.Count)
     
-    Write-Host "All windows found. Waiting for rendering to begin before positioning..."
-    
-    # A brief, static pause to allow for rendering to start.
-    # This will need to be adjusted depending on system performance.
-    Start-Sleep -Seconds 5
-    
     # --- WINDOW POSITIONING ---
 
     Write-Host "Positioning windows..."
@@ -141,6 +135,21 @@ if ($sbsTrue -and $edmlTrue) {
         foreach ($window in $allWindowsToMove) {
             # Only try to move windows that haven't been successfully moved yet
             if ($window.Moved -eq $false) {
+                # We'll now wait until the window title contains the commander's name,
+                # which indicates the game has loaded and is ready to be positioned.
+                do {
+                    $process = Get-Process -Name $window.ProcessName -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -like "*$($window.Name)*" }
+                    if (-not $process) {
+                        Write-Host "Waiting for process $($window.ProcessName) to have title with $($window.Name)..."
+                        Start-Sleep -Milliseconds 500
+                    }
+                } while (-not $process)
+                
+                # Now that we've found the correct window, wait 3 seconds as requested
+                # before attempting to move it.
+                Write-Host "Found new state for $($window.Name). Waiting 3 seconds before positioning."
+                Start-Sleep -Seconds 3
+
                 # If the function call is successful, update the 'Moved' property
                 if (Set-WindowPosition -ProcessName $window.ProcessName -WindowTitle $window.Name -X $window.X -Y $window.Y -Width $window.Width -Height $window.Height -Maximize:$window.Maximize) {
                     $window.Moved = $true
