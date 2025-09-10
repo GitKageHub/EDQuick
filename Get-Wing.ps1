@@ -69,15 +69,15 @@ $eliteDangerousCmdrs = $cmdrNames | Select-Object -Skip 1
 # Define the Elite Dangerous accounts to move and their target coordinates/dimensions
 # This is now dynamically created from the $eliteDangerousCmdrs array
 $boxes = @(
-    @{ Name = $eliteDangerousCmdrs[1]; X = -1080; Y = -387; Width = 800; Height = 600; Moved = $false },
-    @{ Name = $eliteDangerousCmdrs[2]; X = -1080; Y = 213; Width = 800; Height = 600; Moved = $false },
-    @{ Name = $eliteDangerousCmdrs[3]; X = -1080; Y = 813; Width = 800; Height = 600; Moved = $false }
+    @{ Name = $eliteDangerousCmdrs[0]; X = -1080; Y = -387; Width = 800; Height = 600; Moved = $false },
+    @{ Name = $eliteDangerousCmdrs[1]; X = -1080; Y = 213; Width = 800; Height = 600; Moved = $false },
+    @{ Name = $eliteDangerousCmdrs[2]; X = -1080; Y = 813; Width = 800; Height = 600; Moved = $false }
 )
 
 # Define the EDMC accounts to move and their target coordinates/dimensions
 # This is now dynamically created from the $cmdrNames array
 $edmcs = @(
-    @{ Name = $cmdrNames[0]; X = -280; Y = 1213; Width = 300; Height = 600; Moved = $false },
+    @{ Name = $cmdrNames[0]; X = 100; Y = 100; Width = 300; Height = 600; Moved = $false },
     @{ Name = $cmdrNames[1]; X = -280; Y = -387; Width = 300; Height = 600; Moved = $false },
     @{ Name = $cmdrNames[2]; X = -280; Y = 213; Width = 300; Height = 600; Moved = $false },
     @{ Name = $cmdrNames[3]; X = -280; Y = 813; Width = 300; Height = 600; Moved = $false }
@@ -102,10 +102,9 @@ $edmlTrue = Test-Path $edminlauncher
 if ($sbsTrue -and $edmlTrue) {
     # Launch all four Elite Dangerous instances simultaneously.
     # The account names are now dynamically pulled from the $cmdrNames array.
-    Start-Process -FilePath $sandboxieStart -ArgumentList "/box:$($cmdrNames[0]) `"$edminlauncher`" /frontier Account1 /edo /autorun /autoquit /skipInstallPrompt"
-    Start-Process -FilePath $sandboxieStart -ArgumentList "/box:$($cmdrNames[1]) `"$edminlauncher`" /frontier Account2 /edo /autorun /autoquit /skipInstallPrompt"
-    Start-Process -FilePath $sandboxieStart -ArgumentList "/box:$($cmdrNames[2]) `"$edminlauncher`" /frontier Account3 /edo /autorun /autoquit /skipInstallPrompt"
-    Start-Process -FilePath $sandboxieStart -ArgumentList "/box:$($cmdrNames[3]) `"$edminlauncher`" /frontier Account4 /edo /autorun /autoquit /skipInstallPrompt"
+    for ($i = 0; $i -lt $cmdrNames.Count; $i++) {
+        Start-Process -FilePath $sandboxieStart -ArgumentList "/box:$($cmdrNames[$i]) `"$edminlauncher`" /frontier Account$($i+1) /edo /autorun /autoquit /skipInstallPrompt"
+    }
     
     # --- WINDOW FINDING & WAITING ---
 
@@ -130,6 +129,7 @@ if ($sbsTrue -and $edmlTrue) {
     Write-Host "Positioning windows..."
     # This single loop will continue to check for all windows and move them
     # until all have been successfully positioned.
+    $first_wait = $true
     do {
         # Loop through each window configuration
         foreach ($window in $allWindowsToMove) {
@@ -145,10 +145,14 @@ if ($sbsTrue -and $edmlTrue) {
                     }
                 } while (-not $process)
                 
-                # Now that we've found the correct window, wait 3 seconds as requested
-                # before attempting to move it.
-                Write-Host "Found new state for $($window.Name). Waiting 3 seconds before positioning."
-                Start-Sleep -Seconds 3
+                # Check if the current window is an Elite Dangerous client before waiting
+                if ($window.ProcessName -eq "EliteDangerous64") {
+                    Write-Host "Found new state for $($window.Name)."
+                    if ($true -eq $first_wait) {
+                        Start-Sleep -Seconds 7
+                        $first_wait = $false
+                    }
+                }
 
                 # If the function call is successful, update the 'Moved' property
                 if (Set-WindowPosition -ProcessName $window.ProcessName -WindowTitle $window.Name -X $window.X -Y $window.Y -Width $window.Width -Height $window.Height -Maximize:$window.Maximize) {
