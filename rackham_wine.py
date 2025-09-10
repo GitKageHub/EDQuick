@@ -8,7 +8,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
 # Configuration
-WEBHOOK_URL = "https://discord.com/api/webhooks/1414821368175792179/sciXMJJPWA_QeCHw49LEYyZoqOIuOIc-NEzb4OjDiKcDh1tcfXOQ4QGnN8kaJEl72Tyj"
+WEBHOOK_URL = "YOURWEBHOOKHERE"
 PRICE_FILE = "wine_price_history.json"
 INARA_URL = "https://inara.cz/elite/station-market/230278/"
 CHROMEDRIVER_PATH = '/usr/bin/chromedriver'
