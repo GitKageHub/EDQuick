@@ -57,8 +57,8 @@ function Set-WindowPosition {
     }
 }
 
-# Dot-source the wing.conf file to load its variables
-$conf_file = Join-Path -Path $PSScriptRoot -ChildPath wing.conf
+# Dot-source the wing.conf.ps1 file to load its variables
+$conf_file = Join-Path -Path $PSScriptRoot -ChildPath wing.conf.ps1
 if (Test-Path -Path $conf_file -PathType Leaf) {
     . $conf_file
 }
