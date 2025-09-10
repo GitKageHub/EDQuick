@@ -73,7 +73,7 @@ $boxes = @(
 
 # Define the EDMC accounts to move and their target coordinates/dimensions
 $edmcs = @(
-    @{ ProcessName = "EDMarketConnector"; Name = "CMDRDuvrazh"; X = -280; Y = 1213; Width = 300; Height = 600; Moved = $false },
+    @{ ProcessName = "EDMarketConnector"; Name = "CMDRUnistronaut"; X = -280; Y = 1213; Width = 300; Height = 600; Moved = $false },
     @{ ProcessName = "EDMarketConnector"; Name = "CMDRBistronaut"; X = -280; Y = -387; Width = 300; Height = 600; Moved = $false },
     @{ ProcessName = "EDMarketConnector"; Name = "CMDRTristronaut"; X = -280; Y = 213; Width = 300; Height = 600; Moved = $false },
     @{ ProcessName = "EDMarketConnector"; Name = "CMDRQuadstronaut"; X = -280; Y = 813; Width = 300; Height = 600; Moved = $false }
@@ -81,7 +81,7 @@ $edmcs = @(
 
 # Define the Elite Dangerous Exploration Buddy account to move and its target action
 $edeb = @(
-    @{ ProcessName = "Elite Dangerous Exploration Buddy"; Name = "CMDRDuvrazh"; Maximize = $true; Moved = $false }
+    @{ ProcessName = "Elite Dangerous Exploration Buddy"; Name = "CMDRUnistronaut"; Maximize = $true; Moved = $false }
 )
 
 # Create a single list of all items to move for looping porpoises
@@ -93,9 +93,9 @@ $edmlTrue = Test-Path $edminlauncher
 
 if ($sbsTrue -and $edmlTrue) {
     # Launch all four Elite Dangerous instances simultaneously.
-    # Note: CMDRDuvrazh is launched but will not be moved by this script
+    # Note: CMDRUnistronaut is launched but will not be moved by this script
     # as it's not in the $boxes array. You have it in the $edmcs array, which is correct.
-    Start-Process -FilePath $sandboxieStart -ArgumentList "/box:CMDRDuvrazh `"$edminlauncher`" /frontier Account1 /edo /autorun /autoquit /skipInstallPrompt"
+    Start-Process -FilePath $sandboxieStart -ArgumentList "/box:CMDRUnistronaut `"$edminlauncher`" /frontier Account1 /edo /autorun /autoquit /skipInstallPrompt"
     Start-Process -FilePath $sandboxieStart -ArgumentList "/box:CMDRBistronaut `"$edminlauncher`" /frontier Account2 /edo /autorun /autoquit /skipInstallPrompt"
     Start-Process -FilePath $sandboxieStart -ArgumentList "/box:CMDRTristronaut `"$edminlauncher`" /frontier Account3 /edo /autorun /autoquit /skipInstallPrompt"
     Start-Process -FilePath $sandboxieStart -ArgumentList "/box:CMDRQuadstronaut `"$edminlauncher`" /frontier Account4 /edo /autorun /autoquit /skipInstallPrompt"
