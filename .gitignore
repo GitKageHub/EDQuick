@@ -1,1 +1,5 @@
-edquick.conf
+# Ignore the local configuration file
+/wing.conf
+
+# Do not ignore the example configuration file
+!/wing.conf.example
