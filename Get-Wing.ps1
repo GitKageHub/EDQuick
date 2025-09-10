@@ -58,7 +58,10 @@ function Set-WindowPosition {
 }
 
 # Dot-source the wing.conf file to load its variables
-. "$PSScriptRoot\wing.conf"
+$conf_file = Join-Path -Path $PSScriptRoot -ChildPath wing.conf
+if (Test-Path -Path $conf_file -PathType Leaf) {
+    . $conf_file
+}
 
 # Create a variable to hold the Elite Dangerous commander names (excluding the first CMDR from the list)
 $eliteDangerousCmdrs = $cmdrNames | Select-Object -Skip 1
