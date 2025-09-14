@@ -55,61 +55,92 @@ function Set-WindowPosition {
         Write-Warning "Process '$($ProcessName)' with title '$($WindowTitle)' not found. Waiting..."
         return $false
     }
-}
+} ### END Set-WindowPosition
 
 # Dot-source the wing.conf.ps1 file to load its variables
-$conf_file = Join-Path -Path $PSScriptRoot -ChildPath wing.conf.ps1
+# This variable can be a blank string if a selection of the script is run in the VS Codium terminal.
+$script_root = if ($PSScriptRoot) {
+    # If $PSScriptRoot has a value, use it.
+    $PSScriptRoot
+}
+else {
+    # Otherwise, fall back to the current working directory ($PWD).
+    $PWD.Path
+}
+$conf_file = Join-Path -Path $script_root -ChildPath 'wing.conf.ps1'
+
+# Use a single, simple condition to check if the file exists.
 if (Test-Path -Path $conf_file -PathType Leaf) {
-    . $conf_file
+
+    # The try/catch block is for robust error handling.
+    # It attempts to dot-source the file.
+    try {
+        # Dot-sourcing executes the script and loads its variables and functions
+        # into the current scope.
+        Write-Information "Loading configuration from '$conf_file'..."
+        . $conf_file
+        
+        # A good practice is to provide positive feedback after a successful operation.
+        Write-Information "Configuration loaded successfully."
+    }
+    catch {
+        # If an error occurs during dot-sourcing (e.g., a syntax error in the conf file),
+        # this block will catch it and provide a clear error message.
+        Write-Error "An error occurred while loading the configuration file. Please check the file for syntax errors."
+        Write-Error $_
+    }
+}
+else {
+    Write-Information "Configuration file '$conf_file' not found."
 }
 
-# Create a variable to hold the Elite Dangerous commander names (excluding the first CMDR from the list)
-$eliteDangerousCmdrs = $cmdrNames | Select-Object -Skip 1
+
 
 # Define the Elite Dangerous accounts to move and their target coordinates/dimensions
-# This is now dynamically created from the $eliteDangerousCmdrs array
-$boxes = @(
+$client = @(
     @{ Name = $eliteDangerousCmdrs[0]; X = -1080; Y = -387; Width = 800; Height = 600; Moved = $false },
     @{ Name = $eliteDangerousCmdrs[1]; X = -1080; Y = 213; Width = 800; Height = 600; Moved = $false },
     @{ Name = $eliteDangerousCmdrs[2]; X = -1080; Y = 813; Width = 800; Height = 600; Moved = $false }
 )
 
 # Define the EDMC accounts to move and their target coordinates/dimensions
-# This is now dynamically created from the $cmdrNames array
-$edmcs = @(
+$edmc = @(
     @{ Name = $cmdrNames[0]; X = 100; Y = 100; Width = 300; Height = 600; Moved = $false },
     @{ Name = $cmdrNames[1]; X = -280; Y = -387; Width = 300; Height = 600; Moved = $false },
     @{ Name = $cmdrNames[2]; X = -280; Y = 213; Width = 300; Height = 600; Moved = $false },
     @{ Name = $cmdrNames[3]; X = -280; Y = 813; Width = 300; Height = 600; Moved = $false }
 )
 
-# Define the Elite Dangerous Exploration Buddy account to move and its target action
+# Elite Dangerous Exploration Buddy
 $edeb = @(
     @{ ProcessName = "Elite Dangerous Exploration Buddy"; Name = $cmdrNames[0]; Maximize = $true; Moved = $false }
 )
 
 # Update the process names for the dynamic arrays
-$boxes | ForEach-Object { $_.ProcessName = "EliteDangerous64" }
-$edmcs | ForEach-Object { $_.ProcessName = "EDMarketConnector" }
+$client | ForEach-Object { $_.ProcessName = "EliteDangerous64" }
+$edmc | ForEach-Object { $_.ProcessName = "EDMarketConnector" }
 
 # Create a single list of all items to move for looping porpoises
-$allWindowsToMove = $edeb + $edmcs + $boxes
+$allWindowsToMove = $edeb + $edmc + $client
 
 # Check that the necessary executables exist
 $sbsTrue = Test-Path $sandboxieStart
-$edmlTrue = Test-Path $edminlauncher
+$edmlTrue = Test-Path $edminLauncher
 
-if ($sbsTrue -and $edmlTrue) {
+# Set a single variable to true if all paths exist
+$all_apps_are_go = $sbsTrue -and $edmlTrue
+
+if ($all_apps_are_go) {
     # Launch all four Elite Dangerous instances simultaneously.
     # The account names are now dynamically pulled from the $cmdrNames array.
     for ($i = 0; $i -lt $cmdrNames.Count; $i++) {
-        Start-Process -FilePath $sandboxieStart -ArgumentList "/box:$($cmdrNames[$i]) `"$edminlauncher`" /frontier Account$($i+1) /edo /autorun /autoquit /skipInstallPrompt"
+        Start-Process -FilePath $sandboxieStart -ArgumentList "/box:$($cmdrNames[$i]) `"$edminLauncher`" /frontier Account$($i+1) /edo /autorun /autoquit /skipInstallPrompt"
     }
-    
+
     # --- WINDOW FINDING & WAITING ---
 
-    Write-Host "Waiting for windows to load..."
-    # The first loop waits until all processes are found.
+    
+    $previousCount = -1
     do {
         $windowsFoundCount = 0
         foreach ($window in $allWindowsToMove) {
@@ -118,10 +149,22 @@ if ($sbsTrue -and $edmlTrue) {
                 $windowsFoundCount++
             }
         }
-        if ($windowsFoundCount -lt $allWindowsToMove.Count) {
-            Write-Host "Found $windowsFoundCount out of $($allWindowsToMove.Count) windows. Waiting..."
-            Start-Sleep -Milliseconds 500
+    
+        # Check if the current count is different from the previous count.
+        if ($windowsFoundCount -ne $previousCount) {
+            Clear-Host
+            Write-Host "Polling for windows to load..."
+            Write-Host "Found $windowsFoundCount of $($allWindowsToMove.Count)"
+        
+            # Update the previous count to the current count for the next loop.
+            $previousCount = $windowsFoundCount
         }
+
+        # Only sleep if we haven't found all the windows yet.
+        if ($windowsFoundCount -lt $allWindowsToMove.Count) {
+            Start-Sleep -Milliseconds 333
+        }
+    
     } until ($windowsFoundCount -eq $allWindowsToMove.Count)
     
     # --- WINDOW POSITIONING ---
@@ -149,7 +192,11 @@ if ($sbsTrue -and $edmlTrue) {
                 if ($window.ProcessName -eq "EliteDangerous64") {
                     Write-Host "Found new state for $($window.Name)."
                     if ($true -eq $first_wait) {
-                        Start-Sleep -Seconds 7
+                        # Unfortunately the Get-Random -Maximum parameter is non-inclusive. So, let the games begin.
+                        $seven = 7
+                        $eleven = 12
+                        Get-Random -Minimum $seven -Maximum $eleven -Verbose
+                        Start-Sleep -Seconds $seven
                         $first_wait = $false
                     }
                 }
